@@ -1,0 +1,21 @@
+// Buttons
+// =====
+
+$primary-color: #34FF85;
+$text-color: #272727;
+
+[class*='slds-button_brand'] {
+    background-color: $primary-color;
+    border-color: $primary-color;
+    color: $text-color !important;
+
+    &:hover {
+        color: $text-color !important;
+        background-color: #CCFFE1;
+    }
+
+    &:active {
+        background-color: $primary-color;
+        color: $text-color !important;
+    }
+}
