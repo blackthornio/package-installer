@@ -4,18 +4,26 @@
 $primary-color: #34FF85;
 $text-color: #272727;
 
-[class*='slds-button_brand'] {
+@mixin button-text-color {
+    color: $text-color !important;
+}
+
+@mixin button-background-color {
     background-color: $primary-color;
     border-color: $primary-color;
-    color: $text-color !important;
+}
+
+.slds-button_brand {
+    @include button-text-color;
+    @include button-background-color;
 
     &:hover {
-        color: $text-color !important;
+        @include button-text-color;
         background-color: #CCFFE1;
     }
 
     &:active {
-        background-color: $primary-color;
-        color: $text-color !important;
+        @include button-text-color;
+        @include button-background-color;
     }
 }
