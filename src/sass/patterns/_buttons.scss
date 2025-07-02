@@ -12,16 +12,18 @@
 }
 
 .slds-button_brand {
-    @include button-text-color;
-    @include button-background-color;
+    &:not(:disabled) {
+        @include button-background-color;
+        @include button-text-color;
+    }
 
-    &:hover {
+    &:not(:disabled):hover {
         @include button-text-color;
         background-color: #CCFFE1;
         border-color: #CCFFE1;
     }
 
-    &:active {
+    &:not(:disabled):active {
         @include button-text-color;
         @include button-background-color;
     }
