@@ -1,0 +1,34 @@
+// Buttons
+// =====
+// This file contains styles for overriding the SLDS brand buttons, including hover and active states.
+
+@mixin button-text-color {
+    color: #272727 !important;
+}
+
+@mixin button-background-color {
+    background-color: #34FF85;
+    border-color: #34FF85;
+}
+
+.slds-button_brand {
+    &:not(:disabled) {
+        @include button-background-color;
+        @include button-text-color;
+    }
+
+    &:not(:disabled):hover {
+        @include button-text-color;
+        background-color: #CCFFE1;
+        border-color: #CCFFE1;
+    }
+
+    &:not(:disabled):active {
+        @include button-text-color;
+        @include button-background-color;
+    }
+}
+
+.slds-button_brand .slds-icon {
+    fill: #272727;
+}
