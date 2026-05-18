@@ -121,7 +121,7 @@ django==3.2.14
     #   django-storages
     #   djangorestframework
     #   sfdo-template-helpers
-django-allauth==0.51.0
+django-allauth==0.52.0
     # via -r requirements/prod.in
 django-binary-database-files==1.0.15
     # via -r requirements/prod.in

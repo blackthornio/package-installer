@@ -1,4 +1,5 @@
 from unittest import mock
+from urllib.parse import parse_qs, urlparse
 
 import pytest
 from allauth.socialaccount.providers.oauth2.client import OAuth2Error
@@ -62,3 +63,17 @@ def test_custom_500_view__ip_restricted_error(render):
             custom_500_view(request)
 
     assert allow_list == render.call_args[1]["context"]["JS_CONTEXT"]["error_message"]
+
+
+@pytest.mark.django_db
+def test_salesforce_login_uses_pkce(client, social_app):
+    # allauth renders a confirmation page on GET; POST drives the actual redirect.
+    response = client.post("/accounts/salesforce/login/")
+    assert response.status_code == 302
+
+    query = parse_qs(urlparse(response["Location"]).query)
+    assert query.get("code_challenge_method") == ["S256"]
+    assert query.get("code_challenge"), "missing code_challenge on /authorize redirect"
+    assert client.session.get(
+        "pkce_code_verifier"
+    ), "PKCE verifier must be stashed in the session for the callback step"
