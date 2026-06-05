@@ -12,7 +12,7 @@ bleach
 boto3
 channels
 channels-redis
-django-allauth
+django-allauth>=0.52  # 0.52 added per-provider OAUTH_PKCE_ENABLED
 django-colorfield
 django-binary-database-files
 django-environ

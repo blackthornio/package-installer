@@ -361,6 +361,10 @@ if GITHUB_APP_KEY and not GITHUB_APP_ID:
 SOCIALACCOUNT_PROVIDERS = {
     "salesforce": {
         "SCOPE": ["web", "full", "refresh_token"],
+        # Defense-in-depth: send PKCE S256 on the user-login flow. The connected
+        # app does not need to *require* PKCE for this to work — when a challenge
+        # is presented, Salesforce validates it against the code_verifier.
+        "OAUTH_PKCE_ENABLED": True,
         "APP": {
             "client_id": SFDX_CLIENT_ID,
             "secret": SFDX_CLIENT_SECRET,
