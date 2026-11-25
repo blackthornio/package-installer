@@ -3,12 +3,17 @@ name: Staging CI/CD
 on:
   workflow_dispatch:
 
+permissions: {}
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref }}
   cancel-in-progress: true
 
 jobs:
   push_image:
+    permissions:
+      id-token: write
+      contents: read
     uses: ./.github/workflows/generic-build-image.yml
     secrets: inherit
     with:
@@ -16,26 +21,47 @@ jobs:
       VERSION: ${{ github.sha }}
       SERVICE_ROLE: ${{ vars.STAGING_CI_CD_ROLE }}
 
-  deploy_app:
+  deploy_api:
+    permissions:
+      id-token: write
+      contents: read
     needs: [push_image]
-    uses: ./.github/workflows/app-ecs-deploy.yml
+    uses: ./.github/workflows/generic-ecs-deploy.yml
     secrets: inherit
     with:
       SERVICE_ROLE: ${{ vars.STAGING_CI_CD_ROLE }}
-      SECRET: candyshop/stg
       IMAGE: ${{ needs.push_image.outputs.image }}
-      TASK_DEFINITION_NAME: candyshop-app-stg
+      PACKAGE: api
+      TASK_DEFINITION_NAME: candyshop-api-stg
       ESC_CLUSTER_NAME: general-stg
-      ESC_SERVICE_NAME: candyshop-app-stg-ecs-service
-  
+      ESC_SERVICE_NAME: candyshop-api-stg
+
   deploy_worker:
+    permissions:
+      id-token: write
+      contents: read
     needs: [push_image]
-    uses: ./.github/workflows/worker-ecs-deploy.yml
+    uses: ./.github/workflows/generic-ecs-deploy.yml
     secrets: inherit
     with:
       SERVICE_ROLE: ${{ vars.STAGING_CI_CD_ROLE }}
-      SECRET: candyshop/stg
       IMAGE: ${{ needs.push_image.outputs.image }}
+      PACKAGE: worker
       TASK_DEFINITION_NAME: candyshop-worker-stg
       ESC_CLUSTER_NAME: general-stg
-      ESC_SERVICE_NAME: candyshop-worker-stg-ecs-service
+      ESC_SERVICE_NAME: candyshop-worker-stg
+
+  deploy_scheduler:
+    permissions:
+      id-token: write
+      contents: read
+    needs: [push_image]
+    uses: ./.github/workflows/generic-ecs-deploy.yml
+    secrets: inherit
+    with:
+      SERVICE_ROLE: ${{ vars.STAGING_CI_CD_ROLE }}
+      IMAGE: ${{ needs.push_image.outputs.image }}
+      PACKAGE: scheduler
+      TASK_DEFINITION_NAME: candyshop-scheduler-stg
+      ESC_CLUSTER_NAME: general-stg
+      ESC_SERVICE_NAME: candyshop-scheduler-stg
