@@ -13,7 +13,7 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/setup-docker-compose
         with:
           # By writing to the cache here subsequent jobs will get the updated
@@ -25,22 +25,22 @@ jobs:
     needs: [build]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/setup-docker-compose
       - name: Lint
-        run: docker-compose run --no-deps web yarn lint:nofix
+        run: docker compose run --no-deps web yarn lint:nofix
 
   frontend:
     name: Frontend
     needs: [build]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/setup-docker-compose
       - name: Test frontend
-        run: docker-compose run --no-deps web yarn test:js:coverage
+        run: docker compose run --no-deps web yarn test:js:coverage
       - name: Upload coverage artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: frontend-coverage
           path: |
@@ -51,12 +51,12 @@ jobs:
     needs: [build]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/setup-docker-compose
       - name: Test backend
         # prettier-ignore
         run: >
-          docker-compose run
+          docker compose run
           -e DB_ENCRYPTION_KEY=MMkDMBfYL0Xoz3Xu1ENs3AkdCZdJoks5PNlUBkK7KDc=
           -e DJANGO_DEBUG=false
           -e SECURE_SSL_REDIRECT=false
@@ -67,9 +67,10 @@ jobs:
           -e SFDX_HUB_KEY="sample key"
           web yarn test:py
       - name: Upload coverage artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: backend-coverage
+          include-hidden-files: true
           path: |
             .coverage
             coverage.xml
@@ -81,22 +82,22 @@ jobs:
     env:
       COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/setup-docker-compose
       - name: Download frontend coverage artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: frontend-coverage
           path: coverage
       - name: Download backend coverage artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: backend-coverage
       - name: Upload coverage reports
         if: env.COVERALLS_REPO_TOKEN
         # prettier-ignore
         run: >
-          docker-compose run
+          docker compose run
           -e COVERALLS_REPO_TOKEN
           -e COVERALLS_PARALLEL=true
           -e COVERALLS_SERVICE_NUMBER="${{ github.run_id }}"
@@ -109,5 +110,5 @@ jobs:
           '
       - name: Check coverage
         run: |
-          docker-compose run --no-deps web yarn test:js:check-coverage
-          docker-compose run --no-deps web yarn test:py:check-coverage
+          docker compose run --no-deps web yarn test:js:check-coverage
+          docker compose run --no-deps web yarn test:py:check-coverage

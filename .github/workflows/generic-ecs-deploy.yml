@@ -6,10 +6,10 @@ on:
       SERVICE_ROLE:
         required: true
         type: string
-      SECRET:
+      IMAGE:
         required: true
         type: string
-      IMAGE:
+      PACKAGE:
         required: true
         type: string
       TASK_DEFINITION_NAME:
@@ -21,10 +21,6 @@ on:
       ESC_SERVICE_NAME:
         required: true
         type: string
-      WAIT_FOR_STABILITY:
-        required: false
-        type: boolean
-        default: false
 
 jobs:
   start:
@@ -34,14 +30,13 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
         with:
           role-to-assume: ${{ inputs.SERVICE_ROLE }}
           aws-region: us-east-1
-          mask-aws-account-id: 'no'
 
       - name: Get task definition
         env:
@@ -51,26 +46,17 @@ jobs:
             | jq 'del(.compatibilities, .taskDefinitionArn, .requiresAttributes, .revision, .status, .registeredAt, .registeredBy)' \
             > task-definition.json
 
-      - name: Update task definition (app container)
-        id: task_app
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
+      - name: Update task definition
+        id: task
+        uses: aws-actions/amazon-ecs-render-task-definition@8d79160660ad39c402a16e5fc7cd2a32e8f7d6b7 # v.1.9.1
         with:
           task-definition: task-definition.json
-          container-name: app
-          image: ${{ inputs.IMAGE }}
-
-      - name: Update task definition (scheduler container)
-        id: task_scheduler
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ${{ steps.task_app.outputs.task-definition }}
-          container-name: scheduler
+          container-name: ${{ inputs.PACKAGE }}
           image: ${{ inputs.IMAGE }}
 
       - name: Deploy task definition and update service
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        uses: aws-actions/amazon-ecs-deploy-task-definition@c465972ecbd160473f22e683363b422a5412a3de # v2
         with:
-          task-definition: ${{ steps.task_scheduler.outputs.task-definition }}
+          task-definition: ${{ steps.task.outputs.task-definition }}
           cluster: ${{ inputs.ESC_CLUSTER_NAME }}
           service: ${{ inputs.ESC_SERVICE_NAME }}
-          wait-for-service-stability: ${{ inputs.WAIT_FOR_STABILITY }}
